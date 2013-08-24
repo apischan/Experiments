@@ -7,14 +7,16 @@ import com.apischan.compiler.model.SourceProvider;
 
 import javax.tools.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class CompilerCore implements CompilerClient {
 
     /**
      * {@inheritDoc}
      */
-    public List<Class<?>> compileClasses(List<SourceProvider> sources) throws CompilationException {
+    public Map<String, Class<?>> compileClasses(List<SourceProvider> sources) throws CompilationException {
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -35,10 +37,11 @@ class CompilerCore implements CompilerClient {
 
         ClassLoader classLoader = fileManager.getClassLoader(null);
 
-        List<Class<?>> classes = new ArrayList<>();
+        Map<String, Class<?>> classes = new HashMap<>();
         try {
             for (SourceProvider javaSourceData : sources) {
-                classes.add(classLoader.loadClass(javaSourceData.getFullClassName()));
+                String fullClassName = javaSourceData.getFullClassName();
+                classes.put(fullClassName, classLoader.loadClass(fullClassName));
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
