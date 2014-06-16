@@ -1,6 +1,7 @@
 package com.apischanskyi.tryscala
 
 import io.Source._
+import scala.collection.Set
 
 /**
  * Created by andrii.pischanskyi on 2/17/14.
@@ -19,6 +20,16 @@ object FirstObject {
     println(().getClass)
     printFileContentThreeWays()
     printFileLazy(0)
+    try {
+      throwIfNegative(-1)
+    } catch {
+      case ex: IllegalArgumentException => println(ex.getMessage)
+    }
+
+    freq.foreach{case (key, value) => println(key + "=" + value)}
+
+    val indices: Map[Char, Set[Int]] = getIndices("Mississippi")
+    indices.foreach{case (key, value) => println(key + "=" + value)}
   }
 
   //start: below is functions
@@ -63,21 +74,42 @@ object FirstObject {
   //end: procedures
 
   def printFileContentThreeWays() {
-    lazy val lazyWords = fromFile("resources/resources.txt").mkString
-    val valWords = fromFile("resources/resources.txt").mkString
-    def defWords = fromFile("resources/resources.txt").mkString
+    lazy val lazyWords = fromFile("Scala/resources/resources.txt").mkString
+    val valWords = fromFile("Scala/resources/resources.txt").mkString
+    def defWords = fromFile("Scala/resources/resources.txt").mkString
     println("lazy: " + lazyWords)
     println("val: " + valWords)
     println("def: " + defWords)
   }
 
   def printFileLazy(choice: Int) {
-    lazy val lazyWords = fromFile("resources/resources.txt").mkString
+    lazy val lazyWords = fromFile("Scala/resources/resources.txt").mkString
     print("print lazy: ")
     def value = if (choice == 1) {
       lazyWords
     }
     else "default"
-    print(value)
+    println(value)
   }
+
+  def throwIfNegative(number: Int) {
+    print("throwIfNegative(number: Int): ")
+    if (number >= 0) println("OK")
+    else throw new IllegalArgumentException("number must be positive");
+  }
+
+  def freq = (Map[Char, Int]() /: "Mississippi") {
+    (m, c) => m+(c->(m.getOrElse(c, 0) + 1))
+  }
+
+  def getIndices(word: String): Map[Char, Set[Int]] = {
+    (Map[Char, Set[Int]]() /: (0 until word.length)) {
+      (m, c) => m+(
+        word.charAt(c)
+          ->
+          (m.getOrElse(word.charAt(c), Set[Int]()) + c)
+      )
+    }
+  }
+
 }
